@@ -41,7 +41,7 @@ public:
 	static Global *g_global_struct;
 	MainWindow *mw;
 	Settings s;
-	boost::shared_ptr<ServerHandler> sh;
+    boost::shared_ptr<ServerHandler> sh;
 	boost::shared_ptr<AudioInput> ai;
 	boost::shared_ptr<AudioOutput> ao;
 	Database *db;

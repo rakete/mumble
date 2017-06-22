@@ -67,6 +67,10 @@ class Database : public QObject {
 
 		static bool getUdp(const QByteArray &digest);
 		static void setUdp(const QByteArray &digest, bool udp);
+
+        static void pushChatLogEntry(const QString &message);
+        static QStringList getChatLogEntries();
+        static void rotateChatLog(unsigned int maxAgeInDays);
 };
 
 #endif

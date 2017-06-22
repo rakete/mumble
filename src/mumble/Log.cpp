@@ -16,6 +16,7 @@
 #include "RichTextEditor.h"
 #include "ServerHandler.h"
 #include "TextToSpeech.h"
+#include "Database.h"
 
 static ConfigWidget *LogConfigDialogNew(Settings &st) {
 	return new LogConfig(st);
@@ -465,6 +466,7 @@ void Log::log(MsgType mt, const QString &console, const QString &terse, bool own
 		return;
 	}
 
+    QString printedText;
 	QString plain = QTextDocumentFragment::fromHtml(console).toPlainText();
 
 	quint32 flags = g.s.qmMessages.value(mt);
@@ -484,6 +486,7 @@ void Log::log(MsgType mt, const QString &console, const QString &terse, bool own
 			tc.insertBlock();
 			tc.insertHtml(tr("[Date changed to %1]\n").arg(Qt::escape(qdDate.toString(Qt::DefaultLocaleShortDate))));
 			tc.movePosition(QTextCursor::End);
+            printedText += tr("[Date changed to %1]\n").arg(Qt::escape(qdDate.toString(Qt::DefaultLocaleShortDate)));
 		}
 
 		if (plain.contains(QRegExp(QLatin1String("[\\r\\n]")))) {
@@ -496,7 +499,15 @@ void Log::log(MsgType mt, const QString &console, const QString &terse, bool own
 			tc.insertBlock();
 		}
 		tc.insertHtml(Log::msgColor(QString::fromLatin1("[%1] ").arg(Qt::escape(dt.time().toString())), Log::Time));
+        printedText += QString::fromLatin1("[%1] ").arg(Qt::escape(dt.toString()));
+
 		validHtml(console, true, &tc);
+
+        printedText += console;
+        g.db->pushChatLogEntry(printedText);
+
+        //qWarning() << printedText;
+
 		tc.movePosition(QTextCursor::End);
 		g.mw->qteLog->setTextCursor(tc);
 
@@ -504,7 +515,7 @@ void Log::log(MsgType mt, const QString &console, const QString &terse, bool own
 			tlog->scrollLogToBottom();
 		else
 			tlog->setLogScroll(oldscrollvalue);
-	}
+    }
 
 	if (!g.s.bTTSMessageReadBack && ownMessage)
 		return;
