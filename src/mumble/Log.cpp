@@ -100,6 +100,9 @@ void LogConfig::load(const Settings &r) {
 
 	qsbMaxBlocks->setValue(r.iMaxLogBlocks);
 
+    qlPersistentChatEnable->setCheckState(r.bPersistentChatEnable ? Qt::Checked : Qt::Unchecked);
+    qsbPersistentChatMaxAgeDays->setValue(r.iPersistentChatMaxAge);
+
 #ifdef USE_NO_TTS
 	qtwMessages->hideColumn(ColTTS);
 #else
@@ -130,6 +133,10 @@ void LogConfig::save() const {
 		s.qmMessageSounds[mt] = i->text(ColStaticSoundPath);
 	}
 	s.iMaxLogBlocks = qsbMaxBlocks->value();
+
+    s.bPersistentChatEnable = (qlPersistentChatEnable->checkState() == Qt::Checked) ? true : false;
+    s.iPersistentChatMaxAge = qsbPersistentChatMaxAgeDays->value();
+ 
 
 #ifndef USE_NO_TTS
 	s.iTTSVolume=qsVolume->value();
@@ -504,7 +511,9 @@ void Log::log(MsgType mt, const QString &console, const QString &terse, bool own
 		validHtml(console, true, &tc);
 
         printedText += console;
-        g.db->pushChatLogEntry(printedText);
+        if (g.s.bPersistentChatEnable == true) {
+            g.db->pushChatLogEntry(printedText);
+        }
 
         //qWarning() << printedText;
 

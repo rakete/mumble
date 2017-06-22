@@ -216,7 +216,58 @@
         </property>
        </spacer>
       </item>
-     </layout>
+     <item row="0" column="3">
+       <widget class="QCheckBox" name="qlPersistentChatEnable">
+       </widget>
+      </item>
+    <item row="0" column="4">
+       <widget class="QLabel" name="qlPersistentChat">
+        <property name="text">
+         <string>Persistent log</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>8</width>
+          <height>16</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="6">
+       <widget class="QLabel" name="qlPersistentChatMaxAge">
+        <property name="text">
+         <string>Max message age in days</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="7">
+       <widget class="QSpinBox" name="qsbPersistentChatMaxAgeDays">
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::PlusMinus</enum>
+        </property>
+        <property name="value">
+         <number>10</number>
+        </property>
+        <property name="suffix">
+         <string> Days</string>
+        </property>
+        <property name="maximum">
+         <number>365</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+ 
+      </layout>
     </widget>
    </item>
   </layout>

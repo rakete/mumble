@@ -393,6 +393,9 @@ Settings::Settings() {
 
 	iMaxLogBlocks = 0;
 
+    bPersistentChatEnable = false;
+    iPersistentChatMaxAge = 10;
+
 	bShortcutEnable = true;
 	bSuppressMacEventTapWarning = false;
 	bEnableEvdev = false;
@@ -735,6 +738,8 @@ void Settings::load(QSettings* settings_ptr) {
 	SAVELOAD(bShowTransmitModeComboBox, "ui/transmitmodecombobox");
 	SAVELOAD(bHighContrast, "ui/HighContrast");
 	SAVELOAD(iMaxLogBlocks, "ui/MaxLogBlocks");
+	SAVELOAD(bPersistentChatEnable, "ui/PersistentChatEnable");
+	SAVELOAD(iPersistentChatMaxAge, "ui/PersistentChatMaxAge");
 
 	// PTT Button window
 	SAVELOAD(bShowPTTButtonWindow, "ui/showpttbuttonwindow");
@@ -1062,8 +1067,10 @@ void Settings::save() {
 	SAVELOAD(bShowTransmitModeComboBox, "ui/transmitmodecombobox");
 	SAVELOAD(bHighContrast, "ui/HighContrast");
 	SAVELOAD(iMaxLogBlocks, "ui/MaxLogBlocks");
-
-	// PTT Button window
+    SAVELOAD(bPersistentChatEnable, "ui/PersistentChatEnable");
+    SAVELOAD(iPersistentChatMaxAge, "ui/PersistentChatMaxAge");
+	
+    // PTT Button window
 	SAVELOAD(bShowPTTButtonWindow, "ui/showpttbuttonwindow");
 	SAVELOAD(qbaPTTButtonWindowGeometry, "ui/pttbuttonwindowgeometry");
 

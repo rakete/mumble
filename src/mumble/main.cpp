@@ -442,10 +442,12 @@ int main(int argc, char **argv) {
 
 	g.l->log(Log::Information, MainWindow::tr("Welcome to Mumble."));
 
-    QStringList chatlog = g.db->getChatLogEntries();
-    foreach (const QString &str, chatlog) {     
-        //g.l->log(Log::Information, str);
-        g.mw->addTextToChatDialog(str);
+    if (g.s.bPersistentChatEnable == true) {
+        QStringList chatlog = g.db->getChatLogEntries();
+        foreach (const QString &str, chatlog) {     
+            //g.l->log(Log::Information, str);
+            g.mw->addTextToChatDialog(str);
+        }
     }
 
 	// Plugins
@@ -543,7 +545,11 @@ int main(int argc, char **argv) {
 	if (! g.bQuit)
 		res=a.exec();
 
-	g.s.save();
+    if (g.s.bPersistentChatEnable == true) {
+        g.db->rotateChatLog(g.s.iPersistentChatMaxAge);
+    }
+
+    g.s.save();
 
 	url.clear();
 	
@@ -564,8 +570,6 @@ int main(int argc, char **argv) {
 	while (sh && ! sh.unique())
 		QThread::yieldCurrentThread();
 	sh.reset();
-
-    g.db->rotateChatLog(14);
 
 	delete g.mw;
 
