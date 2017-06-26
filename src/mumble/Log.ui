@@ -217,7 +217,7 @@
        </spacer>
       </item>
      <item row="0" column="3">
-       <widget class="QCheckBox" name="qlPersistentChatEnable">
+       <widget class="QCheckBox" name="qcbPersistentChatEnable">
        </widget>
       </item>
     <item row="0" column="4">

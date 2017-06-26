@@ -100,7 +100,7 @@ void LogConfig::load(const Settings &r) {
 
 	qsbMaxBlocks->setValue(r.iMaxLogBlocks);
 
-    qlPersistentChatEnable->setCheckState(r.bPersistentChatEnable ? Qt::Checked : Qt::Unchecked);
+    qcbPersistentChatEnable->setCheckState(r.bPersistentChatEnable ? Qt::Checked : Qt::Unchecked);
     qsbPersistentChatMaxAgeDays->setValue(r.iPersistentChatMaxAge);
 
 #ifdef USE_NO_TTS
@@ -134,7 +134,7 @@ void LogConfig::save() const {
 	}
 	s.iMaxLogBlocks = qsbMaxBlocks->value();
 
-    s.bPersistentChatEnable = (qlPersistentChatEnable->checkState() == Qt::Checked) ? true : false;
+    s.bPersistentChatEnable = (qcbPersistentChatEnable->checkState() == Qt::Checked) ? true : false;
     s.iPersistentChatMaxAge = qsbPersistentChatMaxAgeDays->value();
  
 
