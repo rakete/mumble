@@ -241,6 +241,12 @@ void MainWindow::createActions() {
 #endif
 }
 
+
+void MainWindow::addTextToChatDialog(const QString &text) {
+    qteLog->append(text);
+}
+
+
 void MainWindow::setupGui()  {
 	updateWindowTitle();
 	setCentralWidget(qtvUsers);
@@ -301,7 +307,7 @@ void MainWindow::setupGui()  {
 	qteChat->setDefaultText(tr("<center>Not connected</center>"), true);
 	qteChat->setEnabled(false);
 
-	setShowDockTitleBars(g.s.wlWindowLayout == Settings::LayoutCustom);
+    setShowDockTitleBars(g.s.wlWindowLayout == Settings::LayoutCustom);
 
 #ifdef Q_OS_MAC
 	// Workaround for QTBUG-3116 -- using a unified toolbar on Mac OS X

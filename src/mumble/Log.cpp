@@ -16,6 +16,7 @@
 #include "RichTextEditor.h"
 #include "ServerHandler.h"
 #include "TextToSpeech.h"
+#include "Database.h"
 
 static ConfigWidget *LogConfigDialogNew(Settings &st) {
 	return new LogConfig(st);
@@ -99,6 +100,9 @@ void LogConfig::load(const Settings &r) {
 
 	qsbMaxBlocks->setValue(r.iMaxLogBlocks);
 
+    qcbPersistentChatEnable->setCheckState(r.bPersistentChatEnable ? Qt::Checked : Qt::Unchecked);
+    qsbPersistentChatMaxAgeDays->setValue(r.iPersistentChatMaxAge);
+
 #ifdef USE_NO_TTS
 	qtwMessages->hideColumn(ColTTS);
 #else
@@ -129,6 +133,10 @@ void LogConfig::save() const {
 		s.qmMessageSounds[mt] = i->text(ColStaticSoundPath);
 	}
 	s.iMaxLogBlocks = qsbMaxBlocks->value();
+
+    s.bPersistentChatEnable = (qcbPersistentChatEnable->checkState() == Qt::Checked) ? true : false;
+    s.iPersistentChatMaxAge = qsbPersistentChatMaxAgeDays->value();
+ 
 
 #ifndef USE_NO_TTS
 	s.iTTSVolume=qsVolume->value();
@@ -465,6 +473,7 @@ void Log::log(MsgType mt, const QString &console, const QString &terse, bool own
 		return;
 	}
 
+    QString printedText;
 	QString plain = QTextDocumentFragment::fromHtml(console).toPlainText();
 
 	quint32 flags = g.s.qmMessages.value(mt);
@@ -484,6 +493,7 @@ void Log::log(MsgType mt, const QString &console, const QString &terse, bool own
 			tc.insertBlock();
 			tc.insertHtml(tr("[Date changed to %1]\n").arg(Qt::escape(qdDate.toString(Qt::DefaultLocaleShortDate))));
 			tc.movePosition(QTextCursor::End);
+            printedText += tr("[Date changed to %1]\n").arg(Qt::escape(qdDate.toString(Qt::DefaultLocaleShortDate)));
 		}
 
 		if (plain.contains(QRegExp(QLatin1String("[\\r\\n]")))) {
@@ -496,7 +506,17 @@ void Log::log(MsgType mt, const QString &console, const QString &terse, bool own
 			tc.insertBlock();
 		}
 		tc.insertHtml(Log::msgColor(QString::fromLatin1("[%1] ").arg(Qt::escape(dt.time().toString())), Log::Time));
+        printedText += QString::fromLatin1("[%1] ").arg(Qt::escape(dt.toString()));
+
 		validHtml(console, true, &tc);
+
+        printedText += console;
+        if (g.s.bPersistentChatEnable == true) {
+            g.db->pushChatLogEntry(printedText);
+        }
+
+        //qWarning() << printedText;
+
 		tc.movePosition(QTextCursor::End);
 		g.mw->qteLog->setTextCursor(tc);
 
@@ -504,7 +524,7 @@ void Log::log(MsgType mt, const QString &console, const QString &terse, bool own
 			tlog->scrollLogToBottom();
 		else
 			tlog->setLogScroll(oldscrollvalue);
-	}
+    }
 
 	if (!g.s.bTTSMessageReadBack && ownMessage)
 		return;

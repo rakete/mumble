@@ -272,6 +272,8 @@ struct Settings {
 
 	enum MessageLog { LogNone = 0x00, LogConsole = 0x01, LogTTS = 0x02, LogBalloon = 0x04, LogSoundfile = 0x08};
 	int iMaxLogBlocks;
+    bool bPersistentChatEnable;
+    int iPersistentChatMaxAge;
 	QMap<int, QString> qmMessageSounds;
 	QMap<int, quint32> qmMessages;
 

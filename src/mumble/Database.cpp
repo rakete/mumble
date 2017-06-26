@@ -67,12 +67,16 @@ Database::Database() {
 				found = db.open();
 			}
 			if (found) {
+                qWarning() << "Opened sqlite database on file " << datapaths[i].toStdString().c_str() << "/.mumble.sqlite";
 				break;
 			}
 			QFile databaseFile(datapaths[i] + QLatin1String("/mumble.sqlite"));
 			if (databaseFile.exists()) {
 				db.setDatabaseName(databaseFile.fileName());
 				found = db.open();
+    			if (found) {
+                    qWarning() << "Opened sqlite database on file " << datapaths[i].toStdString().c_str() << "/mumble.sqlite";
+			    }
 			}
 		}
 	}
@@ -84,6 +88,9 @@ Database::Database() {
 				QFile f(datapaths[i] + QLatin1String("/mumble.sqlite"));
 				db.setDatabaseName(f.fileName());
 				found = db.open();
+                if (found == true) {
+                    qWarning() << "Opened sqlite database on file " << datapaths[i].toStdString().c_str() << "/mumble.sqlite";
+                }
 			}
 		}
 	}
@@ -149,7 +156,9 @@ Database::Database() {
 	execQueryAndLogFailure(query, QLatin1String("CREATE TABLE IF NOT EXISTS `pingcache` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `hostname` TEXT, `port` INTEGER, `ping` INTEGER)"));
 	execQueryAndLogFailure(query, QLatin1String("CREATE UNIQUE INDEX IF NOT EXISTS `pingcache_host_port` ON `pingcache`(`hostname`,`port`)"));
 
-	execQueryAndLogFailure(query, QLatin1String("DELETE FROM `comments` WHERE `seen` < datetime('now', '-1 years')"));
+	execQueryAndLogFailure(query, QLatin1String("CREATE TABLE IF NOT EXISTS `chatlog` (`message` TEXT, `date` DATE)"));
+
+    execQueryAndLogFailure(query, QLatin1String("DELETE FROM `comments` WHERE `seen` < datetime('now', '-1 years')"));
 	execQueryAndLogFailure(query, QLatin1String("DELETE FROM `blobs` WHERE `seen` < datetime('now', '-1 months')"));
 
 	execQueryAndLogFailure(query, QLatin1String("VACUUM"));
@@ -449,6 +458,38 @@ QList<Shortcut> Database::getShortcuts(const QByteArray &digest) {
 	}
 	return ql;
 }
+
+void Database::pushChatLogEntry(const QString &message) {
+    QSqlQuery query;
+    query.prepare(QLatin1String("INSERT INTO `chatlog` (`message`, `date`) VALUES (?,datetime('now'))"));
+    query.addBindValue(message);
+
+    execQueryAndLogFailure(query);
+}
+
+QStringList Database::getChatLogEntries() {
+    QList<QString> qsl;
+    QSqlQuery query;
+
+    query.prepare(QLatin1String("SELECT `message` FROM `chatlog` order by date(`date`) ASC"));
+
+    execQueryAndLogFailure(query);
+
+    while (query.next()) {
+
+        qsl << query.value(0).toString();
+
+    }
+
+    return qsl;
+}
+
+void Database::rotateChatLog(unsigned int maxAgeInDays) {
+	QSqlQuery query;
+	query.prepare(QLatin1String("DELETE FROM `chatlog` WHERE `date` <= datetime('now', '-") + QString::number(maxAgeInDays) + QLatin1String(" day')"));
+	execQueryAndLogFailure(query);
+}
+
 
 bool Database::setShortcuts(const QByteArray &digest, QList<Shortcut> &shortcuts) {
 	QSqlQuery query;

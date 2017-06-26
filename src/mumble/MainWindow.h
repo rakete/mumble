@@ -132,6 +132,8 @@ class MainWindow : public QMainWindow, public MessageHandler, public Ui::MainWin
 #endif
 		unsigned int uiNewHardware;
 #endif
+
+        void addTextToChatDialog(const QString &text);
 	protected:
 		Usage uUsage;
 		QTimer *qtReconnect;
