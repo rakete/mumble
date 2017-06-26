@@ -12,6 +12,8 @@ server should work on anything Qt can be installed on.
 
 Note that when we say Win32, we mean Windows XP or newer.
 
+Goal of this fork is to implement a persistent chatlog and webrtc echo-cancelation and noise reduction.
+
 ## Running Mumble
 
 On Windows, after installation, you should have a new Mumble folder in your
