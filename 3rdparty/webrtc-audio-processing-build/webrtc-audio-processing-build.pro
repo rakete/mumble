@@ -1,5 +1,5 @@
 unix {
-    !exists($$PWD/../webrtc-audio-processing/webrtc/modules/audio_processing-src/.libs/libwebrtc_audio_processing.a) {
+    !exists($$PWD/../webrtc-audio-processing-src/webrtc/modules/audio_processing/.libs/libwebrtc_audio_processing.a) {
         system("cd $$PWD/../webrtc-audio-processing-src && ./autogen.sh && make clean && make")
     }
 
