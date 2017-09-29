@@ -69,7 +69,8 @@ class PulseAudioSystem : public QObject {
 		static void restore_sink_input_list_callback(pa_context *c, const pa_sink_input_info *i, int eol, void *userdata);
 		static void stream_restore_read_callback(pa_context *c, const pa_ext_stream_restore_info *i, int eol, void *userdata);
 		static void restore_volume_success_callback(pa_context *c, int success, void *userdata);
-		void contextCallback(pa_context *c);
+        
+        void contextCallback(pa_context *c);
 		void eventCallback(pa_mainloop_api *a, pa_defer_event *e);
 
 		void query();
@@ -79,6 +80,8 @@ class PulseAudioSystem : public QObject {
 
 		void setVolumes();
 		PulseAttenuation* getAttenuation(QString stream_restore_id);
+
+        uint32_t m_uiReadLatency, m_uiWriteLatency;
 
 	public:
 		QHash<QString, QString> qhInput;
@@ -91,6 +94,9 @@ class PulseAudioSystem : public QObject {
 
 		PulseAudioSystem();
 		~PulseAudioSystem() Q_DECL_OVERRIDE;
+
+        uint32_t getReadLatency();
+        uint32_t getWriteLatency();
 };
 
 class PulseAudioInput : public AudioInput {
@@ -106,6 +112,9 @@ class PulseAudioInput : public AudioInput {
 		PulseAudioInput();
 		~PulseAudioInput() Q_DECL_OVERRIDE;
 		void run() Q_DECL_OVERRIDE;
+
+        virtual uint32_t getReadLatency();
+        virtual uint32_t getWriteLatency();
 };
 
 class PulseAudioOutput : public AudioOutput {

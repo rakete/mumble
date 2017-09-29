@@ -1139,7 +1139,7 @@ Este valor permite definir o número máximo de utilizadores permitido no canal.
     </message>
     <message>
         <location/>
-        <source>Echo Cancellation</source>
+        <source>Speex Echo Cancellation</source>
         <translation>Cancelamento de Eco</translation>
     </message>
     <message>

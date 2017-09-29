@@ -1141,7 +1141,7 @@ Zum Beispiel wäre für die Audigy 2 ZS &apos;&lt;i&gt;Mic L&lt;/i&gt;&apos; ein
     </message>
     <message>
         <location/>
-        <source>Echo Cancellation</source>
+        <source>Speex Echo Cancellation</source>
         <translation>Echounterdrückung</translation>
     </message>
     <message>

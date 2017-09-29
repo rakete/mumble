@@ -18,6 +18,10 @@ SUBDIRS *= src/mumble_proto
     SUBDIRS *= 3rdparty/speex-build
   }
 
+  !CONFIG(no-libwebrtc) {
+    SUBDIRS *= 3rdparty/webrtc-audio-processing-build
+  }
+
   CONFIG(sbcelt) {
     SUBDIRS *= 3rdparty/celt-0.7.0-build 3rdparty/sbcelt-lib-build 3rdparty/sbcelt-helper-build
   } else {

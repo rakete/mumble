@@ -242,6 +242,7 @@ struct Settings {
 	QByteArray qbaDXInput, qbaDXOutput;
 
 	bool bExclusiveInput, bExclusiveOutput;
+    bool bWebRTCNoiseSuppression, bWebRTCGainControl, bWebRTCEchoCancellation;
 	bool bEcho;
 	bool bEchoMulti;
 	bool bPositionalAudio;

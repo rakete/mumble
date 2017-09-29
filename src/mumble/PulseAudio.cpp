@@ -12,7 +12,6 @@
 #include "Timer.h"
 #include "User.h"
 
-
 static const char *mumble_sink_input = "Mumble Speakers";
 static const char *mumble_echo = "Mumble Speakers (Echo)";
 
@@ -27,6 +26,8 @@ class PulseAudioInputRegistrar : public AudioInputRegistrar {
 		virtual const QList<audioDevice> getDeviceChoices();
 		virtual void setDeviceChoice(const QVariant &, Settings &);
 		virtual bool canEcho(const QString &) const;
+        virtual bool canWebRTCNoiseSuppression() const;
+        virtual bool canWebRTCEchoCancellation() const;
 };
 
 
@@ -77,6 +78,7 @@ PulseAudioSystem::PulseAudioSystem() {
 	iRemainingOperations = 0;
 	bPulseIsGood = false;
 	iSinkId = -1;
+    m_uiReadLatency = m_uiWriteLatency = 0;
 
 	pam = pa_threaded_mainloop_new();
 	pa_mainloop_api *api = pa_threaded_mainloop_get_api(pam);
@@ -99,7 +101,7 @@ PulseAudioSystem::PulseAudioSystem() {
 
 	pade = api->defer_new(api, defer_event_callback, this);
 	api->defer_enable(pade, false);
-
+        
 	pa_threaded_mainloop_start(pam);
 
 	bRunning = true;
@@ -239,9 +241,9 @@ void PulseAudioSystem::eventCallback(pa_mainloop_api *api, pa_defer_event *) {
 			bPositionalCache = g.s.doPositionalAudio();
 			qsOutputCache = odev;
 
-			pa_stream_connect_playback(pasOutput, qPrintable(odev), &buff, PA_STREAM_ADJUST_LATENCY, NULL, NULL);
+			pa_stream_connect_playback(pasOutput, qPrintable(odev), &buff, (pa_stream_flags_t)(PA_STREAM_ADJUST_LATENCY|PA_STREAM_AUTO_TIMING_UPDATE), NULL, NULL);
 			pa_context_get_sink_info_by_name(pacContext, qPrintable(odev), sink_info_callback, this);
-		}
+        }
 	}
 
 	if (raw_ai) {
@@ -299,7 +301,7 @@ void PulseAudioSystem::eventCallback(pa_mainloop_api *api, pa_defer_event *) {
 
 			qsInputCache = idev;
 
-			pa_stream_connect_record(pasInput, qPrintable(idev), &buff, PA_STREAM_ADJUST_LATENCY);
+			pa_stream_connect_record(pasInput, qPrintable(idev), &buff, (pa_stream_flags_t)(PA_STREAM_ADJUST_LATENCY|PA_STREAM_AUTO_TIMING_UPDATE));
 		}
 	}
 
@@ -364,7 +366,7 @@ void PulseAudioSystem::eventCallback(pa_mainloop_api *api, pa_defer_event *) {
 			bEchoMultiCache = g.s.bEchoMulti;
 			qsEchoCache = edev;
 
-			pa_stream_connect_record(pasSpeaker, qPrintable(edev), &buff, PA_STREAM_ADJUST_LATENCY);
+			pa_stream_connect_record(pasSpeaker, qPrintable(edev), &buff, (pa_stream_flags_t)(PA_STREAM_ADJUST_LATENCY|PA_STREAM_AUTO_TIMING_UPDATE));
 		}
 	}
 }
@@ -496,10 +498,22 @@ void PulseAudioSystem::read_callback(pa_stream *s, size_t bytes, void *userdata)
 				pai->eMicFormat = PulseAudioInput::SampleShort;
 			pai->initializeMixer();
 		}
-		if (data != NULL) {
+		
+        if (data != NULL) {
 			pai->addMic(data, static_cast<unsigned int>(length) / pai->iMicSampleSize);
 		}
-	} else if (s == pas->pasSpeaker) {
+
+        pa_usec_t l;
+        int negative = 0;
+        int rc =pa_stream_get_latency(s, &l, &negative);
+        if (rc >= 0 ) {
+            pas->m_uiReadLatency = (l / 1000); // * (negative?-1:1);
+            qWarning() << "pa_stream_get_latency() returns " << pas->m_uiReadLatency;
+	    } else {
+            qWarning() << "pa_stream_get_latency rc=" << pa_strerror(rc);
+        }
+ 
+    } else if (s == pas->pasSpeaker) {
 		if (!pa_sample_spec_equal(pss, &pai->pssEcho)) {
 			pai->pssEcho = *pss;
 			pai->iEchoFreq = pss->rate;
@@ -536,6 +550,15 @@ void PulseAudioSystem::write_callback(pa_stream *s, size_t bytes, void *userdata
 		pas->wakeup();
 		return;
 	}
+
+    pa_usec_t l;
+    int negative = 0;
+    int rc = pa_stream_get_latency(s, &l, &negative);
+    if (rc >= 0) {
+        pas->m_uiWriteLatency = (l / 1000); // * (negative?-1:1);
+    } else {
+        qWarning() << "pa_stream_get_latency rc=" << pa_strerror(rc);
+    }
 
 	const pa_sample_spec *pss = pa_stream_get_sample_spec(s);
 	const pa_channel_map *pcm = pa_stream_get_channel_map(pas->pasOutput);
@@ -835,6 +858,15 @@ void PulseAudioSystem::contextCallback(pa_context *c) {
 	qmWait.unlock();
 }
 
+
+uint32_t PulseAudioSystem::getReadLatency() {
+    return m_uiReadLatency;
+}
+    
+uint32_t PulseAudioSystem::getWriteLatency() {
+    return m_uiWriteLatency;
+}
+
 PulseAudioInputRegistrar::PulseAudioInputRegistrar() : AudioInputRegistrar(QLatin1String("PulseAudio"), 10) {
 }
 
@@ -866,6 +898,16 @@ void PulseAudioInputRegistrar::setDeviceChoice(const QVariant &choice, Settings 
 
 bool PulseAudioInputRegistrar::canEcho(const QString &osys) const {
 	return (osys == name);
+}
+
+bool PulseAudioInputRegistrar::canWebRTCNoiseSuppression() const {
+	qWarning() << "PulseAudioInputRegistrar::canWebRTCNoiseSuppression()";
+    return true;
+}
+
+bool PulseAudioInputRegistrar::canWebRTCEchoCancellation() const {
+    qWarning() << "PulseAudioInputRegistrar::canWebRTCEchoCancellation()";
+	return true;
 }
 
 PulseAudioOutputRegistrar::PulseAudioOutputRegistrar() : AudioOutputRegistrar(QLatin1String("PulseAudio"), 10) {
@@ -924,6 +966,20 @@ void PulseAudioInput::run() {
 	while (bRunning)
 		qwcWait.wait(&qmMutex);
 	qmMutex.unlock();
+}
+
+uint32_t PulseAudioInput::getReadLatency() {
+    if (pasys)
+        return pasys->getReadLatency();
+    
+    return 0;
+}
+
+uint32_t PulseAudioInput::getWriteLatency() {
+    if (pasys)
+        return pasys->getWriteLatency();
+    
+    return 0;
 }
 
 PulseAudioOutput::PulseAudioOutput() {

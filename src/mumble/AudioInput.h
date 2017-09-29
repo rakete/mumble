@@ -4,7 +4,7 @@
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
 
 #ifndef MUMBLE_MUMBLE_AUDIOINPUT_H_
-#define MUMBLE_MUMBLE_AUDIOINPUT_H_
+#define MUMBLE_MUMBLE_AUDIOINPUT_H
 
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
@@ -20,6 +20,8 @@
 #include "Settings.h"
 #include "Timer.h"
 #include "Message.h"
+
+#include "WebRTCWrapper.h"
 
 class AudioInput;
 class CELTCodec;
@@ -45,6 +47,9 @@ class AudioInputRegistrar {
 		virtual void setDeviceChoice(const QVariant &, Settings &) = 0;
 		virtual bool canEcho(const QString &outputsys) const = 0;
 		virtual bool canExclusive() const;
+        virtual bool canWebRTCNoiseSuppression() const;
+        virtual bool canWebRTCGainControl() const;
+        virtual bool canWebRTCEchoCancellation() const;
 };
 
 class AudioInput : public QThread {
@@ -71,6 +76,8 @@ class AudioInput : public QThread {
 		inMixerFunc imfMic, imfEcho;
 		inMixerFunc chooseMixer(const unsigned int nchan, SampleFormat sf, quint64 mask);
 		void resetAudioProcessor();
+
+        WebRTCWrapper *poWebRTCWrapper;
 
 		OpusEncoder *opusState;
 		bool selectCodec();
@@ -171,7 +178,12 @@ class AudioInput : public QThread {
 		~AudioInput() Q_DECL_OVERRIDE;
 		void run() Q_DECL_OVERRIDE = 0;
 		virtual bool isAlive() const;
-		bool isTransmitting() const;
+		virtual uint32_t getReadLatency();
+       	virtual uint32_t getWriteLatency();
+    
+        bool isTransmitting() const;
+
+        bool configureWebRTCWrapper(bool useNoiseSuppression, bool useGainControl, bool useEchoCancellation);
 };
 
 #endif

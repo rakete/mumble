@@ -1140,7 +1140,7 @@ Det värdet tillåter dig att ställa in ett maximalt antal av användare som ä
     </message>
     <message>
         <location/>
-        <source>Echo Cancellation</source>
+        <source>Speex Echo Cancellation</source>
         <translation>Ekoavbrytning</translation>
     </message>
     <message>

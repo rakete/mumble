@@ -140,7 +140,8 @@ HEADERS *= BanEditor.h \
     widgets/MUComboBox.h \
     DeveloperConsole.h \
     PathListWidget.h \
-    XMLTools.h
+    XMLTools.h \
+    WebRTCWrapper.h
 
 SOURCES *= BanEditor.cpp \
     ACLEditor.cpp \
@@ -208,7 +209,8 @@ SOURCES *= BanEditor.cpp \
     widgets/MUComboBox.cpp \
     DeveloperConsole.cpp \
     PathListWidget.cpp \
-    XMLTools.cpp
+    XMLTools.cpp \
+    WebRTCWrapper.cpp
 
 CONFIG(qtspeech) {
   SOURCES *= TextToSpeech.cpp
@@ -455,6 +457,20 @@ unix {
   }
 
   CONFIG *= link_pkgconfig
+
+  !CONFIG(no-webrtc) {
+    # using pkgconfig
+    # QMAKE_CFLAGS *= $$system(pkg-config --cflags webrtc-audio-processing)
+    # QMAKE_CXXFLAGS *= $$system(pkg-config --cflags webrtc-audio-processing)
+    # QMAKE_CXXFLAGS_RELEASE *= $$system(pkg-config --cflags webrtc-audio-processing)
+    # QMAKE_CXXFLAGS_DEBUG *= $$system(pkg-config --cflags webrtc-audio-processing)
+    # LIBS += $$system(pkg-config --libs webrtc-audio-processing)
+    QMAKE_CFLAGS *= -DWEBRTC_AUDIO_PROCESSING_ONLY_BUILD -DWEBRTC_POSIX -I../../3rdparty/webrtc-audio-processing/
+    QMAKE_CXXFLAGS *= -DWEBRTC_AUDIO_PROCESSING_ONLY_BUILD -DWEBRTC_POSIX -I../../3rdparty/webrtc-audio-processing/
+    QMAKE_CXXFLAGS_RELEASE *= -DWEBRTC_AUDIO_PROCESSING_ONLY_BUILD -DWEBRTC_POSIX -I../../3rdparty/webrtc-audio-processing/
+    QMAKE_CXXFLAGS_DEBUG *= -DWEBRTC_AUDIO_PROCESSING_ONLY_BUILD -DWEBRTC_POSIX -I../../3rdparty/webrtc-audio-processing/
+    LIBS += ../../3rdparty/webrtc-audio-processing/webrtc/modules/audio_processing/.libs/libwebrtc_audio_processing.a
+  }
 
   must_pkgconfig(sndfile)
 

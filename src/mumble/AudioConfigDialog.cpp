@@ -114,7 +114,11 @@ void AudioInputDialog::load(const Settings &r) {
 
 	loadCheckBox(qcbExclusive, r.bExclusiveInput);
 
-	qlePushClickPathOn->setText(r.qsTxAudioCueOn);
+	loadCheckBox(qcbWebRTCNoiseSuppression, r.bWebRTCNoiseSuppression);
+	loadCheckBox(qcbWebRTCGainControl, r.bWebRTCGainControl);
+	loadCheckBox(qcbWebRTCEchoCancellation, r.bWebRTCEchoCancellation);
+
+    qlePushClickPathOn->setText(r.qsTxAudioCueOn);
 	qlePushClickPathOff->setText(r.qsTxAudioCueOff);
 
 	loadComboBox(qcbTransmit, r.atTransmit);
@@ -180,6 +184,10 @@ void AudioInputDialog::save() const {
 	s.bEcho = qcbEcho->currentIndex() > 0;
 	s.bEchoMulti = qcbEcho->currentIndex() == 2;
 	s.bExclusiveInput = qcbExclusive->isChecked();
+
+    s.bWebRTCNoiseSuppression = qcbWebRTCNoiseSuppression->isChecked();
+    s.bWebRTCGainControl = qcbWebRTCGainControl->isChecked();
+    s.bWebRTCEchoCancellation = qcbWebRTCEchoCancellation->isChecked();
 
 	if (AudioInputRegistrar::qmNew) {
 		AudioInputRegistrar *air = AudioInputRegistrar::qmNew->value(qcbSystem->currentText());
@@ -368,6 +376,15 @@ void AudioInputDialog::on_qcbSystem_currentIndexChanged(int) {
 
 		qcbEcho->setEnabled(air->canEcho(s.qsAudioOutput));
 		qcbExclusive->setEnabled(air->canExclusive());
+
+        qcbWebRTCNoiseSuppression->setEnabled(air->canWebRTCNoiseSuppression());
+        qcbWebRTCGainControl->setEnabled(air->canWebRTCGainControl());
+        qcbWebRTCEchoCancellation->setEnabled(air->canWebRTCEchoCancellation());
+
+        if (! air->canWebRTCNoiseSuppression()) qcbWebRTCNoiseSuppression->setChecked(false);
+        if (! air->canWebRTCGainControl()) qcbWebRTCGainControl->setChecked(false);
+        if (! air->canWebRTCEchoCancellation()) qcbWebRTCEchoCancellation->setChecked(false);
+ 
 	}
 
 	qcbDevice->setEnabled(ql.count() > 1);
@@ -441,7 +458,8 @@ void AudioOutputDialog::load(const Settings &r) {
 		loadComboBox(qcbSystem, i);
 
 	loadCheckBox(qcbExclusive, r.bExclusiveOutput);
-	loadSlider(qsDelay, r.iOutputDelay);
+
+    loadSlider(qsDelay, r.iOutputDelay);
 	loadSlider(qsVolume, iroundf(r.fVolume * 100.0f + 0.5f));
 	loadSlider(qsOtherVolume, iroundf((1.0f - r.fOtherVolume) * 100.0f + 0.5f));
 	loadCheckBox(qcbAttenuateOthersOnTalk, r.bAttenuateOthersOnTalk);
@@ -491,7 +509,6 @@ void AudioOutputDialog::save() const {
 	s.bPositionalAudio = qcbPositional->isChecked();
 	s.bPositionalHeadphone = qcbHeadphones->isChecked();
 	s.bExclusiveOutput = qcbExclusive->isChecked();
-
 
 	if (AudioOutputRegistrar::qmNew) {
 		AudioOutputRegistrar *aor = AudioOutputRegistrar::qmNew->value(qcbSystem->currentText());
@@ -555,19 +572,19 @@ void AudioOutputDialog::on_qsVolume_valueChanged(int v) {
 }
 
 void AudioOutputDialog::on_qsOtherVolume_valueChanged(int v) {
-	qlOtherVolume->setText(tr("%1 %").arg(v));
-}
-
+    qlOtherVolume->setText(tr("%1 %").arg(v));
+}   
+    
 void AudioOutputDialog::on_qsPacketDelay_valueChanged(int v) {
-	qlPacketDelay->setText(tr("%1 ms").arg(v));
-}
-
-void AudioOutputDialog::on_qsPacketLoss_valueChanged(int v) {
-	qlPacketLoss->setText(tr("%1 %").arg(v));
-}
-
+    qlPacketDelay->setText(tr("%1 ms").arg(v));
+}   
+    
+void AudioOutputDialog::on_qsPacketLoss_valueChanged(int v) { 
+    qlPacketLoss->setText(tr("%1 %").arg(v)); 
+}   
+    
 void AudioOutputDialog::on_qsDelay_valueChanged(int v) {
-	qlDelay->setText(tr("%1 ms").arg(v*10));
+    qlDelay->setText(tr("%1 ms").arg(v*10));
 }
 
 void AudioOutputDialog::on_qcbLoopback_currentIndexChanged(int v) {

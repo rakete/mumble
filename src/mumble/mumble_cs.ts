@@ -1140,7 +1140,7 @@ Tato hodnota Vám umožňuje nastavit maximální počet povolených uživatelů
     </message>
     <message>
         <location/>
-        <source>Echo Cancellation</source>
+        <source>Speex Echo Cancellation</source>
         <translation>Potlačení ozvěny</translation>
     </message>
     <message>

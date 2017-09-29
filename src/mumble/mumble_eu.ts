@@ -1142,7 +1142,7 @@ This value allows you to set the maximum number of users allowed in the channel.
     </message>
     <message>
         <location/>
-        <source>Echo Cancellation</source>
+        <source>Speex Echo Cancellation</source>
         <translation>Oihartzun indargabetzailea</translation>
     </message>
     <message>

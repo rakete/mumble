@@ -1,0 +1,20 @@
+unix {
+    !exists($$PWD/../webrtc-audio-processing/webrtc/modules/audio_processing/.libs/libwebrtc_audio_processing.a) {
+        system("cd $$PWD/../webrtc-audio-processing && ./autogen.sh && make clean && make")
+    }
+
+    !exists($$PWD/../webrtc-audio-processing/webrtc/modules/audio_processing/.libs/libwebrtc_audio_processing.a) {
+        message("Cannot build 3rdparty/webrtc-audio-processing. Please fix.")
+        error("Aborting configuration.")
+    }
+}
+
+TEMPLATE =aux 
+OBJECTS_DIR = ./
+DESTDIR = ./
+
+macx|win32 {
+    message("No support for webrtc-audio-processing on macx or win32 yet.")
+    error("Aborting configuration")
+}
+

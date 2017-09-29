@@ -320,6 +320,10 @@ Settings::Settings() {
 	bExclusiveInput = false;
 	bExclusiveOutput = false;
 
+    bWebRTCNoiseSuppression = false;
+    bWebRTCGainControl = false;
+    bWebRTCEchoCancellation = false;
+
 	iPortAudioInput = -1; // default device
 	iPortAudioOutput = -1; // default device
 
@@ -442,7 +446,7 @@ Settings::Settings() {
 }
 
 bool Settings::doEcho() const {
-	if (! bEcho)
+	if (! bEcho && ! bWebRTCEchoCancellation)
 		return false;
 
 	if (AudioInputRegistrar::qmNew) {
@@ -627,7 +631,12 @@ void Settings::load(QSettings* settings_ptr) {
 	SAVELOAD(bEchoMulti, "audio/echomulti");
 	SAVELOAD(bExclusiveInput, "audio/exclusiveinput");
 	SAVELOAD(bExclusiveOutput, "audio/exclusiveoutput");
-	SAVELOAD(bPositionalAudio, "audio/positional");
+
+    SAVELOAD(bWebRTCNoiseSuppression, "audio/webrtcnoisesuppression");
+	SAVELOAD(bWebRTCGainControl, "audio/webrtcgaincontrol");
+	SAVELOAD(bWebRTCEchoCancellation, "audio/webrtcechocancellation");
+
+    SAVELOAD(bPositionalAudio, "audio/positional");
 	SAVELOAD(bPositionalHeadphone, "audio/headphone");
 	SAVELOAD(qsAudioInput, "audio/input");
 	SAVELOAD(qsAudioOutput, "audio/output");
@@ -959,7 +968,12 @@ void Settings::save() {
 	SAVELOAD(bEchoMulti, "audio/echomulti");
 	SAVELOAD(bExclusiveInput, "audio/exclusiveinput");
 	SAVELOAD(bExclusiveOutput, "audio/exclusiveoutput");
-	SAVELOAD(bPositionalAudio, "audio/positional");
+
+    SAVELOAD(bWebRTCNoiseSuppression, "audio/webrtcnoisesuppression");
+	SAVELOAD(bWebRTCGainControl, "audio/webrtcgaincontrol");
+	SAVELOAD(bWebRTCEchoCancellation, "audio/webrtcechocancellation");
+
+    SAVELOAD(bPositionalAudio, "audio/positional");
 	SAVELOAD(bPositionalHeadphone, "audio/headphone");
 	SAVELOAD(qsAudioInput, "audio/input");
 	SAVELOAD(qsAudioOutput, "audio/output");

@@ -1135,7 +1135,7 @@ maksymalna liczba użytkowników wynosi tyle co domyślny limit serwera.</transl
     </message>
     <message>
         <location/>
-        <source>Echo Cancellation</source>
+        <source>Speex Echo Cancellation</source>
         <translation>Usuwanie echa</translation>
     </message>
     <message>

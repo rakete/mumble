@@ -116,7 +116,7 @@
       <item row="1" column="3">
        <widget class="QLabel" name="qliEcho">
         <property name="text">
-         <string>Echo Cancellation</string>
+         <string>Speex Echo Cancellation</string>
         </property>
        </widget>
       </item>
@@ -143,6 +143,52 @@
           <string>Multichannel echo cancellation</string>
          </property>
         </item>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="qliWebRTC">
+        <property name="text">
+         <string>WebRTC</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="qcbWebRTCNoiseSuppression">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>27</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Noise Suppression</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QCheckBox" name="qcbWebRTCGainControl">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>27</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Gain Control</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QCheckBox" name="qcbWebRTCEchoCancellation">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>27</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Echo Cancellation</string>
+        </property>
        </widget>
       </item>
      </layout>

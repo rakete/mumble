@@ -1139,7 +1139,7 @@ Waarde bepaalt &apos;t maximale aantal toegestane gebruikers in &apos;t kanaal. 
     </message>
     <message>
         <location/>
-        <source>Echo Cancellation</source>
+        <source>Speex Echo Cancellation</source>
         <translation>Echo-opheffing</translation>
     </message>
     <message>

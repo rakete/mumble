@@ -42,7 +42,7 @@ AudioInputRegistrar::~AudioInputRegistrar() {
 }
 
 AudioInputPtr AudioInputRegistrar::newFromChoice(QString choice) {
-	if (! qmNew)
+    if (! qmNew)
 		return AudioInputPtr();
 
 	if (!choice.isEmpty() && qmNew->contains(choice)) {
@@ -71,7 +71,22 @@ bool AudioInputRegistrar::canExclusive() const {
 	return false;
 }
 
-AudioInput::AudioInput() : opusBuffer(g.s.iFramesPerPacket * (SAMPLE_RATE / 100)) {
+bool AudioInputRegistrar::canWebRTCNoiseSuppression() const {
+    qWarning() << "AudioInputRegistrar::canWebRTCNoiseSuppression() not implemented";
+    return false;
+}
+
+bool AudioInputRegistrar::canWebRTCGainControl() const {
+	qWarning() << "AudioInputRegistrar::canWebRTCGainControl() not implemented";
+    return false;
+}
+
+bool AudioInputRegistrar::canWebRTCEchoCancellation() const {
+	qWarning() << "AudioInputRegistrar::canWebRTCEchoCancellation() not implemented";
+    return false;
+}
+
+AudioInput::AudioInput() : poWebRTCWrapper(NULL), opusBuffer(g.s.iFramesPerPacket * (SAMPLE_RATE / 100)) {
 	adjustBandwidth(g.iMaxBandwidth, iAudioQuality, iAudioFrames);
 
 	g.iAudioBandwidth = getNetworkBandwidth(iAudioQuality, iAudioFrames);
@@ -138,7 +153,12 @@ AudioInput::AudioInput() : opusBuffer(g.s.iFramesPerPacket * (SAMPLE_RATE / 100)
 		setMaxBandwidth(g.iMaxBandwidth);
 	}
 
-	bRunning = true;
+    if (NULL == poWebRTCWrapper) {
+        poWebRTCWrapper = new WebRTCWrapper();
+    }
+    configureWebRTCWrapper(g.s.bWebRTCNoiseSuppression, g.s.bWebRTCGainControl, g.s.bWebRTCEchoCancellation);
+
+    bRunning = true;
 
 	connect(this, SIGNAL(doDeaf()), g.mw->qaAudioDeaf, SLOT(trigger()), Qt::QueuedConnection);
 	connect(this, SIGNAL(doMute()), g.mw->qaAudioMute, SLOT(trigger()), Qt::QueuedConnection);
@@ -169,6 +189,10 @@ AudioInput::~AudioInput() {
 		speex_resampler_destroy(srsMic);
 	if (srsEcho)
 		speex_resampler_destroy(srsEcho);
+
+    if (poWebRTCWrapper) {
+        delete poWebRTCWrapper; poWebRTCWrapper = NULL;
+    }
 
 	delete [] psMic;
 	delete [] psClean;
@@ -396,6 +420,8 @@ void AudioInput::initializeMixer() {
 	iMicSampleSize = static_cast<int>(iMicChannels * ((eMicFormat == SampleFloat) ? sizeof(float) : sizeof(short)));
 	iEchoSampleSize = static_cast<int>(iEchoChannels * ((eEchoFormat == SampleFloat) ? sizeof(float) : sizeof(short)));
 
+    configureWebRTCWrapper(g.s.bWebRTCNoiseSuppression, g.s.bWebRTCGainControl, g.s.bWebRTCEchoCancellation);
+
 	bResetProcessor = true;
 
 	qWarning("AudioInput: Initialized mixer for %d channel %d hz mic and %d channel %d hz echo", iMicChannels, iMicFreq, iEchoChannels, iEchoFreq);
@@ -441,6 +467,8 @@ void AudioInput::addMic(const void *data, unsigned int nsamp) {
 			for (int j = 0; j < iFrameSize; ++j)
 				psMic[j] = static_cast<short>(qBound(-32768.f, (ptr[j] * mul), 32767.f));
 
+            if (poWebRTCWrapper) poWebRTCWrapper->update_audiobuffer_near_end(iMicChannels, 48000, psMic, iFrameSize, getWriteLatency());
+
 			// If we have echo chancellation enabled...
 			if (iEchoChannels > 0) {
 				short *echo = NULL;
@@ -468,6 +496,8 @@ void AudioInput::addMic(const void *data, unsigned int nsamp) {
 					// We have echo data for the current frame, remember that
 					delete [] psSpeaker;
 					psSpeaker = echo;
+                    
+                    if (poWebRTCWrapper) poWebRTCWrapper->update_audiobuffer_far_end(iMicChannels, 48000, psSpeaker, iFrameSize, getReadLatency());
 				}
 			}
 
@@ -1050,4 +1080,22 @@ void AudioInput::flushCheck(const QByteArray &frame, bool terminator) {
 
 bool AudioInput::isAlive() const {
 	return isRunning();
+}
+
+bool AudioInput::configureWebRTCWrapper(bool useNoiseSuppression, bool useGainControl, bool useEchoCancellation) {
+
+	if (poWebRTCWrapper == NULL) {
+        return false;
+    }
+
+    poWebRTCWrapper->init(useNoiseSuppression, useGainControl, useEchoCancellation, 48000, 1, 48000, 1);
+
+    return true;
+}
+
+uint32_t AudioInput::getWriteLatency() {
+    return 0;
+}
+uint32_t AudioInput::getReadLatency() {
+    return 0;
 }

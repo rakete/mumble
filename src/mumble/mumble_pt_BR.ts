@@ -1140,7 +1140,7 @@ Este valor permite que você especifique o número máximo de usuários permitid
     </message>
     <message>
         <location/>
-        <source>Echo Cancellation</source>
+        <source>Speex Echo Cancellation</source>
         <translation>Atenuação de Eco</translation>
     </message>
     <message>
