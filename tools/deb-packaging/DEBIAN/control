@@ -1,0 +1,5 @@
+Package: mumble
+Version: 1.3.a
+Maintainer: henno@binaerwerkstatt.de
+Architecture: all
+Description: Mumble with WebRTC support
