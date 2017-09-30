@@ -434,6 +434,14 @@ win32 {
       QMAKE_POST_LINK = $$QMAKE_POST_LINK$$escape_expand(\\n\\t)$$quote(mt.exe -nologo -updateresource:$(DESTDIR_TARGET);1 -manifest mumble.appcompat.manifest)
     }
   }
+
+  !CONFIG(no-webrtc) {
+    QMAKE_CFLAGS *= -DWEBRTC_AUDIO_PROCESSING_ONLY_BUILD -DWEBRTC_WIN -I../../3rdparty/webrtc-audio-processing-src/
+    QMAKE_CXXFLAGS *= -DWEBRTC_AUDIO_PROCESSING_ONLY_BUILD -DWEBRTC_WIN -I../../3rdparty/webrtc-audio-processing-src/
+    QMAKE_CXXFLAGS_RELEASE *= -DWEBRTC_AUDIO_PROCESSING_ONLY_BUILD -DWEBRTC_WIN -I../../3rdparty/webrtc-audio-processing-src/
+    QMAKE_CXXFLAGS_DEBUG *= -DWEBRTC_AUDIO_PROCESSING_ONLY_BUILD -DWEBRTC_WIN -I../../3rdparty/webrtc-audio-processing-src/
+    LIBS += ../../3rdparty/webrtc-audio-processing-src/webrtc/modules/audio_processing/.libs/libwebrtc_audio_processing.a
+  }
 }
 
 unix {
