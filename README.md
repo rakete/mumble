@@ -1,69 +1,54 @@
-Mumble - A voicechat utility for gamers
-=======================================
+Webrtc Mumble fork with echo cancelation
+===================================================
 
-> *http://mumble.info/*  
-> *#mumble on freenode*
+## Building for Windows
 
-Mumble is a voicechat program for gamers written on top of Qt and Opus.
+Only cross compilation with mingw tested and supported.
 
-There are two modules in Mumble; the client (mumble) and the server
-(murmur). The client works on Win32/64, Linux and Mac OS X, while the
-server should work on anything Qt can be installed on.
+Make sure you have the latest webrtc-audio-processing sources from either
+https://github.com/rakete/webrtc-audio-processing
+or
+https://github.com/hennakin/webrtc-audio-processing
+in 3rdparty/webrtc-audio-processing-src submodule path.
 
-Note that when we say Win32, we mean Windows XP or newer.
+# Installing the required MXE packages
 
-Goal of this fork is to implement a persistent chatlog and webrtc echo-cancellation and noise reduction.
+From https://wiki.mumble.info/wiki/BuildingWindows#Build_using_MXE_on_Debian_and_derivates
 
-## Running Mumble
+    echo "deb http://pkg.mxe.cc/repos/apt/debian jessie main" > /etc/apt/sources.list.d/mxeapt.list
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D43A795B73B16ABE9643FE1AFD8FFF16DB45C6AB
+    apt-get update
 
-On Windows, after installation, you should have a new Mumble folder in your
-Start Menu, from which you can start Mumble.
+Install the required packages
 
-On Mac OS X, to install Mumble, drag the application from the downloaded
-disk image into your `/Applications` folder.
+    apt-get install \
+        mxe-${ARCH}-w64-mingw32.static-qtbase \
+        mxe-${ARCH}-w64-mingw32.static-qtsvg \
+        mxe-${ARCH}-w64-mingw32.static-qttools \
+        mxe-${ARCH}-w64-mingw32.static-qttranslations \
+        mxe-${ARCH}-w64-mingw32.static-boost \
+        mxe-${ARCH}-w64-mingw32.static-protobuf \
+        mxe-${ARCH}-w64-mingw32.static-sqlite \
+        mxe-${ARCH}-w64-mingw32.static-flac \
+        mxe-${ARCH}-w64-mingw32.static-ogg \
+        mxe-${ARCH}-w64-mingw32.static-vorbis \
+        mxe-${ARCH}-w64-mingw32.static-libsndfile
 
-Once Mumble is launched, you need a server to connect to. Either create your
-own or join a friend's.
+# Building
 
-## Running Murmur on Unix-like systems
+Clone the repository from either rakete or hennakin
 
-Murmur should be run from the command line, so start a shell (command prompt)
-and go to wherever you installed Mumble. Run murmur as
+    git clone https://github.com/rakete/mumble.git # or https://github.com/hennakin/mumble.git
+    cd mumble
 
-```
-murmurd [-supw <password>] [-ini <inifile>] [-fg] [v]
+Export environment variable to tell QMake where MXE's protobuf compiler is and add MXE's directory to PATH
 
--supw   Set new password for the user SuperUser, which is hardcoded to
-        bypass ACLs. Keep this password safe. Until you set a password,
-        the SuperUser is disabled. If you use this option, murmur will
-        set the password in the database and then exit.
+    export MUMBLE_PROTOC=/usr/lib/mxe/usr/x86_64-unknown-linux-gnu/bin/protoc
+    export PATH=$PATH:/usr/lib/mxe/usr/bin
 
--ini    Use a inifile other than murmur.ini, use this to run several instances
-        of murmur from the same directory. Make sure each instance is using
-        a separate database.
+Run QMake to process the project(s) files and run make to start the build
 
--fg     Run in the foreground, logging to standard output.
+    x86_64-w64-mingw32.static-qmake-qt5 -recursive CONFIG+="release g15-emulator no-overlay no-bonjour no-elevation no-ice"
+    make
 
--v      More verbose logging.
-```
-
-## Running Murmur on Mac OS X
-
-Murmur is distributed seperately from the Mumble client on Mac OS X.
-It is called Static OS X Server and can be downloaded from the main webpage.
-
-Once downloaded it can be run in the same way as on any other Unix-like system.
-For more information please see the 'Running Murmur on Unix-like systems' above.
-
-## Running Murmur on Win32
-
-Doubleclick the Murmur icon to start murmur. There will be a small icon on your
-taskbar from which you can view the log.
-
-To set the superuser password, run murmur with the parameters `-supw <password>`.
-
-## Bandwidth usage
-
-Mumble will use 10-40 kbit/s outgoing, and the same incoming for each user.
-So if there are 10 other users on the server with you, your incoming
-bandwidth requirement will be 100-400 kbit/s if they all talk at the same time.
+Afterwards the windows build can be found in the mumble/release directory.
