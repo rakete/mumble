@@ -32,6 +32,6 @@ OBJECTS_DIR = ./
 DESTDIR = ./
 
 macx {
-    message("No support for webrtc-audio-processing on macx or win32 yet.")
+    message("No support for webrtc-audio-processing on macx yet.")
     error("Aborting configuration")
 }
