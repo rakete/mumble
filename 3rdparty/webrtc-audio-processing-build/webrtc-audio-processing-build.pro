@@ -12,6 +12,7 @@ unix {
 win32 {
     !exists($$PWD/../webrtc-audio-processing-src/webrtc/modules/audio_processing/.libs/libwebrtc_audio_processing.a) {
         system("cd $$PWD/../webrtc-audio-processing-src && ./autogen.sh && \
+                export PATH=$PATH:/usr/lib/mxe/usr/bin && \
                 export CC=x86_64-w64-mingw32.static-gcc && \
                 export CXX=x86_64-w64-mingw32.static-g++ && \
                 export CPP=x86_64-w64-mingw32.static-cpp && \
@@ -26,7 +27,7 @@ win32 {
     }
 }
 
-TEMPLATE =aux 
+TEMPLATE =aux
 OBJECTS_DIR = ./
 DESTDIR = ./
 
@@ -34,4 +35,3 @@ macx {
     message("No support for webrtc-audio-processing on macx or win32 yet.")
     error("Aborting configuration")
 }
-
