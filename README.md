@@ -1,7 +1,7 @@
 Webrtc Mumble fork with echo cancelation
 ===================================================
 
-## Building for Windows
+# Building for Windows
 
 Only cross compilation with mingw tested and supported.
 
@@ -11,7 +11,7 @@ or
 https://github.com/hennakin/webrtc-audio-processing
 in 3rdparty/webrtc-audio-processing-src submodule path.
 
-# Installing the required MXE packages
+## Installing the required MXE packages
 
 From https://wiki.mumble.info/wiki/BuildingWindows#Build_using_MXE_on_Debian_and_derivates
 
@@ -34,7 +34,7 @@ Install the required packages
         mxe-${ARCH}-w64-mingw32.static-vorbis \
         mxe-${ARCH}-w64-mingw32.static-libsndfile
 
-# Building
+## Building
 
 Clone the repository from either rakete or hennakin
 
